@@ -1,0 +1,24 @@
+# Python / Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Variables & Secrets
+.env
+
+# Database
+*.sqlite3
+*.db
+
+# IDE settings (PyCharm & VSCode)
+.idea/
+.vscode/
+*.iml
+
+# Django specific
+media/
+staticfiles/
