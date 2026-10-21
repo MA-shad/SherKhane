@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'accounts.apps.AccountsConfig',
+    'divan'
 ]
 
 AUTH_USER_MODEL = "accounts.User"
