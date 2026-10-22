@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست API دیوان - شعرخانه</title>
+    <!-- وب‌فونت فارسی وزیرمتن -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- کتابخانه Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-amber-50 text-slate-800 min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- سربرگ -->
+        <header class="text-center mb-8 border-b border-amber-200 pb-4">
+            <h1 class="text-3xl font-bold text-amber-900 mb-2">پنل تست زنده API دیوان (شعرخانه)</h1>
+            <p class="text-amber-700 text-sm">تست دریافت مستقیم اطلاعات از دیتابیس PostgreSQL و جنگو REST Framework</p>
+        </header>
+
+        <!-- بخش دکمه‌های فراخوانی -->
+        <div class="flex justify-center gap-4 mb-8">
+            <button onclick="fetchPoets()" class="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2.5 rounded-lg shadow font-medium transition">
+                ۱. دریافت لیست شاعران (/api/poets/)
+            </button>
+            <button onclick="fetchPoems()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-5 py-2.5 rounded-lg shadow font-medium transition">
+                ۲. دریافت لیست اشعار (/api/poems/)
+            </button>
+        </div>
+
+        <!-- محل نمایش وضعیت و خطاهایی مثل CORS -->
+        <div id="status" class="hidden mb-6 p-4 rounded-lg text-sm font-medium"></div>
+
+        <!-- محل رندر کارت‌ها -->
+        <div id="content-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="col-span-full text-center text-slate-500 py-12 border-2 border-dashed border-amber-200 rounded-xl">
+                روی یکی از دکمه‌های بالا کلیک کن تا داده‌ها مستقیماً از دیتابیس خوانده و نمایش داده شوند.
+            </div>
+        </div>
+    </div>
+
+    <!-- کدهای جاوااسکریپت برای فراخوانی API و تست -->
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-amber-100', 'text-amber-800');
+            if (isError) {
+                statusDiv.classList.add('bg-red-100', 'text-red-800');
+            } else {
+                statusDiv.classList.add('bg-amber-100', 'text-amber-800');
+            }
+            statusDiv.innerHTML = message;
+        }
+
+        // ۱. واکشی لیست شاعران از بک‌اند
+        async function fetchPoets() {
+            const container = document.getElementById('content-container');
+            showStatus('در حال دریافت اطلاعات شاعران از دیتابیس...');
+
+            try {
+                const response = await fetch(`${API_BASE}/poets/`);
+                if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
+
+                const data = await response.json();
+                showStatus(`تعداد ${data.length} شاعر با موفقیت از دیتابیس خوانده شد.`);
+
+                if(data.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-600">شاعر جدیدی در دیتابیس یافت نشد (دیتابیس خالی است).</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(poet => `
+                    <div class="bg-white border border-amber-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-amber-950">${poet.name}</h3>
+                            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full">قرن ${poet.century || 'نامشخص'}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">${poet.bio || 'بیوگرافی ثبت نشده است.'}</p>
+                        <div class="text-xs text-amber-700 font-semibold border-t border-amber-100 pt-3">
+                            تعداد اشعار ثبت شده: ${poet.poems_count || 0}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                showStatus(`⚠️ خطا در اتصال به بک‌اند: ${error.message}<br><small>تست کن که دستور runserver روشن باشد و CORS فعال شده باشد.</small>`, true);
+            }
+        }
+
+        // ۲. واکشی لیست اشعار و بیت‌ها از بک‌اند
+        async function fetchPoems() {
+            const container = document.getElementById('content-container');
+            showStatus('در حال دریافت اطلاعات اشعار و بیت‌ها...');
+
+            try {
+                const response = await fetch(`${API_BASE}/poems/`);
+                if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
+
+                const data = await response.json();
+                showStatus(`تعداد ${data.length} شعر با موفقیت از دیتابیس خوانده شد.`);
+
+                if(data.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-600">شعری در دیتابیس یافت نشد (دیتابیس خالی است).</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(poem => `
+                    <div class="col-span-full bg-white border border-amber-200 rounded-xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4 border-b border-amber-100 pb-3">
+                            <h3 class="text-lg font-bold text-amber-900">${poem.title}</h3>
+                            <div class="flex gap-2">
+                                <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded">${poem.poem_type || 'غزل'}</span>
+                                <span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">${poem.rhythm || 'وزن نامشخص'}</span>
+                            </div>
+                        </div>
+
+                        <!-- لیست ابیات به صورت دو ستونه (مصرع اول و دوم) -->
+                        <div class="space-y-3 my-4">
+                            ${(poem.verses || []).map(v => `
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center py-1 bg-amber-50/50 rounded px-3 border-r-2 border-amber-700">
+                                    <div class="text-slate-800 font-medium">${v.first_couplet}</div>
+                                    <div class="text-slate-800 font-medium">${v.second_couplet}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                showStatus(`⚠️ خطا در اتصال به بک‌اند: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>

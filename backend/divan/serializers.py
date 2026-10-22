@@ -12,7 +12,7 @@ class PoemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Poem
-        fields = ['id', 'title', 'poem_type', 'rhythm', 'verses', 'created_at']
+        fields = ['id', 'title', 'poem_type', 'verses', 'created_at']
 
 
 class PoetSerializer(serializers.ModelSerializer):
