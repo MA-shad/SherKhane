@@ -8,12 +8,12 @@ class Poet(models.Model):
     century = models.IntegerField(blank=True, null=True)
 
 class Poem(models.Model):
-    poet = models.ForeignKey(poet, on_delete=models.CASCADE)
+    poet = models.ForeignKey(Poet, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     poem_type = models.CharField(max_length=20, default='غزل')
 
 class Verse(models.Model):
-    verse = models.ForeignKey(poem, on_delete=models.CASCADE)
+    verse = models.ForeignKey(Poem, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(blank=True, null=True)
     first_couplet = models.CharField(max_length=255)
     second_couplet = models.CharField(max_length=255)
