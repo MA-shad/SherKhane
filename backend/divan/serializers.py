@@ -1,5 +1,18 @@
 from rest_framework import serializers
-from .models import Poet, Poem, Verse
+from .models import Poet, Rhythm, Poem, Verse
+
+
+class PoetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Poet
+        fields = ['id', 'name', 'bio', 'century']
+
+
+class RhythmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rhythm
+        fields = ['id', 'name', 'bahr']
+
 
 class VerseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,16 +21,9 @@ class VerseSerializer(serializers.ModelSerializer):
 
 
 class PoemSerializer(serializers.ModelSerializer):
+    # قرار دادن ابیات به صورت تودرتو زیر مجموعه شعر
     verses = VerseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Poem
-        fields = ['id', 'title', 'poem_type', 'verses', 'created_at']
-
-
-class PoetSerializer(serializers.ModelSerializer):
-    poems_count = serializers.IntegerField(source='poems.count', read_only=True)
-
-    class Meta:
-        model = Poet
-        fields = ['id', 'name', 'bio', 'century', 'poems_count', 'created_at']
+        fields = ['id', 'poet', 'title', 'rhythm', 'poem_type', 'verses', 'created_at']

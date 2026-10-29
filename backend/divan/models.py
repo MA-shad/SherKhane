@@ -1,21 +1,71 @@
 from django.db import models
 
-# Create your models here.
 
+#شاعر
 class Poet(models.Model):
-    name = models.CharField(max_length=150)
-    bio = models.TextField(blank=True, null=True)
-    century = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=150, verbose_name="نام شاعر")
+    bio = models.TextField(blank=True, null=True, verbose_name="زندگی‌نامه")
+    century = models.IntegerField(blank=True, null=True, verbose_name="قرن")
 
+    def __str__(self):
+        return self.name
+
+
+#وزن عروضی
+class Rhythm(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="وزن")
+    bahr = models.CharField(max_length=100, blank=True, null=True, verbose_name="بحر عروضی")
+
+    def __str__(self):
+        if self.bahr:
+            return f"{self.name} | {self.bahr}"
+        return self.name
+
+
+#شعر
 class Poem(models.Model):
-    poet = models.ForeignKey(Poet, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    poem_type = models.CharField(max_length=20, default='غزل')
-    created_at = models.DateTimeField(auto_now_add=True)
+    poet = models.ForeignKey(Poet, on_delete=models.CASCADE, related_name='poems', verbose_name="شاعر")
+    title = models.CharField(max_length=255, verbose_name="عنوان شعر")
 
+    class PoemType(models.TextChoices):
+        GHAZAL = 'غزل', 'غزل'
+        QASIDA = 'قصیده', 'قصیده'
+        MASNAVI = 'مثنوی', 'مثنوی'
+        ROBAEI = 'رباعی', 'رباعی'
+        DOBEYTI = 'دوبیتی', 'دوبیتی'
+        QATE = 'قطعه', 'قطعه'
+
+    rhythm = models.ForeignKey(
+        Rhythm,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='poems',
+        verbose_name="وزن شعر"
+    )
+
+    poem_type = models.CharField(
+        max_length=20,
+        choices=PoemType.choices,
+        default=PoemType.GHAZAL,
+        verbose_name="قالب شعر"
+    )
+
+    def __str__(self):
+        return f"{self.title} - {self.poet.name}"
+
+
+#بیت
 class Verse(models.Model):
-    verse = models.ForeignKey(Poem, on_delete=models.CASCADE, related_name='verses')
-    order = models.PositiveIntegerField(blank=True, null=True)
-    first_couplet = models.CharField(max_length=255)
-    second_couplet = models.CharField(max_length=255)
+    poem = models.ForeignKey(Poem, on_delete=models.CASCADE, related_name='verses', verbose_name="شعر")
+    order = models.PositiveIntegerField(blank=True, null=True, verbose_name="شماره بیت")
+    first_couplet = models.CharField(max_length=255, verbose_name="مصرع اول")
+    second_couplet = models.CharField(max_length=255, verbose_name="مصرع دوم")
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = "بیت"
+        verbose_name_plural = "ابیات"
+
+    def __str__(self):
+        return f"بیت {self.order} از {self.poem.title}"
