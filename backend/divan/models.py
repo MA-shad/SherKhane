@@ -7,6 +7,10 @@ class Poet(models.Model):
     bio = models.TextField(blank=True, null=True, verbose_name="زندگی‌نامه")
     century = models.IntegerField(blank=True, null=True, verbose_name="قرن")
 
+    class Meta:
+        verbose_name = "شاعر"
+        verbose_name_plural = "شاعران"
+
     def __str__(self):
         return self.name
 
@@ -15,6 +19,10 @@ class Poet(models.Model):
 class Rhythm(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="وزن")
     bahr = models.CharField(max_length=100, blank=True, null=True, verbose_name="بحر عروضی")
+
+    class Meta:
+        verbose_name = "وزن"
+        verbose_name_plural = "اوزان"
 
     def __str__(self):
         if self.bahr:
@@ -50,6 +58,12 @@ class Poem(models.Model):
         default=PoemType.GHAZAL,
         verbose_name="قالب شعر"
     )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    class Meta:
+        verbose_name = "شعر"
+        verbose_name_plural = "اشعار"
 
     def __str__(self):
         return f"{self.title} - {self.poet.name}"
