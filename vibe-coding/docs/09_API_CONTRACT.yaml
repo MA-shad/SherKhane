@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: SherKhaneh Core Literary API
+  description: Official OpenAPI 3.0 Contract for SherKhaneh Persian Poetry Platform.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+    description: Local Development Server
+paths:
+  /auth/register/:
+    post:
+      summary: Register a new literary user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Validation error
+
+  /auth/token/:
+    post:
+      summary: Obtain JWT access and refresh token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Tokens generated
+        '401':
+          description: Invalid credentials
+
+  /poets/:
+    get:
+      summary: List all classical and modern poets
+      responses:
+        '200':
+          description: A list of poets
+
+  /poets/{slug}/:
+    get:
+      summary: Retrieve detailed profile and biography of a poet
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Poet details
+
+  /poems/:
+    get:
+      summary: Search and list poems with filtering
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: poet
+          in: query
+          schema:
+            type: string
+        - name: poem_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Filtered list of poems
+
+  /poems/{id}/:
+    get:
+      summary: Get full poem with structured verses and meters
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Poem details with verses
+
+  /library/bookmarks/:
+    get:
+      summary: List authenticated user personal bookmarks
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User bookmarks
+    post:
+      summary: Add a poem to notebook
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [poem_id]
+              properties:
+                poem_id:
+                  type: integer
+                category_tag:
+                  type: string
+                note:
+                  type: string
+      responses:
+        '201':
+          description: Bookmark saved
+
+  /memorization/progress/:
+    get:
+      summary: List active memorization cards and due reviews
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Memorization items
+
+  /memorization/review/:
+    post:
+      summary: Submit a spaced repetition review response
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [poem_id, quality_grade]
+              properties:
+                poem_id:
+                  type: integer
+                quality_grade:
+                  type: integer
+                  minimum: 0
+                  maximum: 5
+      responses:
+        '200':
+          description: Updated mastery schedule
+
+  /mushaereh/turn/:
+    post:
+      summary: Submit a verse in turn-based mushaereh match
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, verse_text]
+              properties:
+                session_id:
+                  type: integer
+                verse_text:
+                  type: string
+      responses:
+        '200':
+          description: Turn accepted and validated
+        '400':
+          description: Invalid verse, wrong letter, duplicate or timeout
+
+  /daily/fal-hafez/:
+    get:
+      summary: Draw an authentic Faal from Hafez Divan with literary commentary
+      responses:
+        '200':
+          description: Random ghazal with interpretation
+
+  /daily/today/:
+    get:
+      summary: Retrieve beyt of the day and daily proverb
+      responses:
+        '200':
+          description: Daily literary highlight
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

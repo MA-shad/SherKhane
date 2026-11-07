@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شعرخونه | پایگاه تعاملی شعر و ادب پارسی</title>
+  <meta name="description" content="پلتفرم جامع تجربه زنده، کشف، مطالعه، حفظ و مشاعره ادبیات کهن فارسی">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="brand" data-navigate="home">
+      <div class="brand-icon">🪶</div>
+      <div class="brand-text">
+        <h1>شعرخونه</h1>
+        <span>سرای جاودان ادب پارسی</span>
+      </div>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item active" data-view="home">🏠 پیشخوان</li>
+      <li class="nav-item" data-view="treasury">📚 گنجینه اشعار</li>
+      <li class="nav-item" data-view="memorization">🧠 استودیو حفظ</li>
+      <li class="nav-item" data-view="mushaereh">⚔️ تالار مشاعره</li>
+      <li class="nav-item" data-view="games">🎲 بازی‌های ادبی</li>
+      <li class="nav-item" data-view="notebook">📖 دفترچه من</li>
+      <li class="nav-item" data-view="profile">🏅 کارنامه</li>
+    </ul>
+
+    <div class="header-actions">
+      <div class="user-badge">
+        <span id="user-title-display">حافظ‌یار</span>
+        <span class="streak" id="user-streak-display">۳ روز</span>
+        <span style="color: var(--color-gold-accent);" id="user-xp-display">۱۵۰ XP</span>
+      </div>
+      <button class="btn-icon" id="btn-toggle-theme" title="تغییر پوسته شب / روز">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- 1. VIEW: HOME / DASHBOARD -->
+    <section id="view-home" class="view-section active">
+      
+      <!-- Hero: Beyt of the Day -->
+      <div class="hero-card">
+        <div class="hero-tag">✨ بیت برگزیده امروز</div>
+        <div class="hero-verse">
+          <p id="beyt-first">صبر تلخ است ولیکن بر شیرین دارد</p>
+          <p id="beyt-second">صبر کن ای دل غمدیده که پیروز شوی</p>
+        </div>
+        <div class="hero-poet" id="beyt-poet">— سعدی شیرازی</div>
+        <p class="hero-commentary" id="beyt-commentary">
+          شکیبایی و استقامت در راه هدف، تلخی موقت را به حلاوت جاودان پیروزی پیوند می‌زند.
+        </p>
+      </div>
+
+      <!-- Quick Action Cards Grid -->
+      <div class="quick-grid">
+        <div class="action-card" data-navigate="treasury">
+          <div class="action-icon">📖</div>
+          <h3>گنجینه اشعار</h3>
+          <p>جست‌وجو و خوانش در دیوان سعدی، حافظ، مولانا و فردوسی</p>
+        </div>
+        <div class="action-card" data-navigate="memorization">
+          <div class="action-icon">🧠</div>
+          <h3>استودیو حفظ شعر</h3>
+          <p>تثبیت هوشمند اشعار در حافظه با روش علمی تکرار با فاصله</p>
+        </div>
+        <div class="action-card" data-navigate="mushaereh">
+          <div class="action-icon">⚔️</div>
+          <h3>میدان مشاعره</h3>
+          <p>مسابقه زنده با هوش ادبی سخن‌سنج با داوری مقتدرانه</p>
+        </div>
+        <div class="action-card" data-navigate="games">
+          <div class="action-icon">🧩</div>
+          <h3>بیت‌چین و بازی‌ها</h3>
+          <p>مرتب‌سازی ابیات، حدس شاعر و کوییز واژگان کهن</p>
+        </div>
+      </div>
+
+      <!-- Proverb of the Day Box -->
+      <div style="background-color: var(--color-surface-card); border: 1px solid var(--color-gold-gentle); border-radius: var(--radius-md); padding: 24px; margin-bottom: var(--space-xl); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-gold-accent);">📜 ضرب‌المثل روز</span>
+          <h3 id="proverb-text" style="font-size: 1.3rem; margin: 4px 0 8px;">گر صبر کنی ز غوره حلوا سازی</h3>
+          <p id="proverb-meaning" style="color: var(--color-ink-subtle); font-size: 0.95rem;">با بردباری و استمرار می‌توان سخت‌ترین ناممکن‌ها را به سرانجام رساند.</p>
+        </div>
+        <button class="chip" data-navigate="treasury" style="font-weight: 600;">کاوش در امثال و اشعار ◀</button>
+      </div>
+
+      <!-- Interactive Fal-e Hafez Widget -->
+      <div class="fal-container">
+        <h2>تفأل به دیوان لسان‌الغیب حافظ شیرازی</h2>
+        <p>نیت کنید، فاتحه‌ای قرائت فرمایید و بر دکمه زیر کلیک کنید تا شاهد سرای اسرار گردید.</p>
+        <button class="fal-btn" id="btn-draw-fal">نیت کنید و تفأل زنید</button>
+
+        <div class="fal-result" id="fal-result-box">
+          <div class="fal-ghazal-text" id="fal-verses"></div>
+          <div class="fal-tafsir-box">
+            <h4>تعبیر و پیام معنوی خواجه:</h4>
+            <p id="fal-tafsir-text"></p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 2. VIEW: TREASURY (گنجینه ادب) -->
+    <section id="view-treasury" class="view-section">
+      <div style="margin-bottom: var(--space-lg);">
+        <h2>گنجینه اشعار و دیوان مفاخر پارسی</h2>
+        <p style="color: var(--color-ink-subtle);">هزاران بیت اصیل همراه با وزن عروضی، قالب و تصحیحات معتبر</p>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="search-bar-wrap">
+        <input type="text" class="search-input" id="poetry-search-input" placeholder="جست‌وجوی کلمه، مطلع، یا نام شاعر (مثال: بشنو این نی، الساقی، سعدی)...">
+      </div>
+
+      <div class="filter-chips" id="poet-filter-chips">
+        <div class="chip active" id="chip-all-poets">همه شاعران</div>
+      </div>
+
+      <!-- Poems List Grid -->
+      <div class="poems-grid" id="treasury-poems-grid"></div>
+    </section>
+
+    <!-- 3. VIEW: MEMORIZATION STUDIO (استودیو حفظ) -->
+    <section id="view-memorization" class="view-section">
+      <div style="margin-bottom: var(--space-lg);">
+        <h2>استودیو هوشمند حفظ شعر</h2>
+        <p style="color: var(--color-ink-subtle);">بر پایه الگوریتم لایتنر و تکرار با فاصله (SuperMemo-2) برای ماندگاری مادام‌العمر در حافظه</p>
+      </div>
+
+      <div id="memorization-practice-box">
+        <div style="background-color: var(--color-surface-card); border: 1px dashed var(--color-gold-gentle); border-radius: var(--radius-lg); padding: 48px; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 16px;">🧠</div>
+          <h3>هیچ شعر فعالی برای آزمون انتخاب نشده است</h3>
+          <p style="color: var(--color-ink-subtle); margin: 8px 0 24px;">وارد «گنجینه اشعار» شوید، شعر دلخواه خود را باز کرده و دکمه «تمرین حفظ» را بفشارید.</p>
+          <button class="fal-btn" data-navigate="treasury">انتخاب شعر از گنجینه ◀</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. VIEW: MUSHAEREH ARENA (تالار مشاعره) -->
+    <section id="view-mushaereh" class="view-section">
+      <div class="mushaereh-box">
+        <div class="arena-header">
+          <div class="letter-target-badge">
+            <div class="letter-circle" id="arena-current-letter">م</div>
+            <div>
+              <span style="font-size: 0.85rem; color: var(--color-ink-muted);">حرف نوبت فعلی</span>
+              <h3 style="font-size: 1.3rem;">نوبت شماست!</h3>
+            </div>
+          </div>
+          <div style="display: flex; gap: 20px; align-items: center;">
+            <div style="text-align: center;">
+              <span style="font-size: 0.75rem; color: var(--color-ink-muted);">امتیاز شما</span>
+              <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-emerald-success);" id="arena-user-score">۰</div>
+            </div>
+            <div style="text-align: center;">
+              <span style="font-size: 0.75rem; color: var(--color-ink-muted);">سخن‌سنج (ربات)</span>
+              <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-teal-poetic);" id="arena-bot-score">۰</div>
+            </div>
+            <div style="text-align: center; background: var(--color-surface-alt); padding: 6px 14px; border-radius: var(--radius-sm);">
+              <span style="font-size: 0.75rem; color: var(--color-ink-muted);">زمان نوبت</span>
+              <div style="font-weight: 700; color: var(--color-amber-warning);" id="mushaereh-timer-display">۴۵ ثانیه</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Turns Log -->
+        <div class="turns-log" id="mushaereh-log">
+          <div class="turn-bubble system" style="text-align: center; margin: 0 auto;">
+            دکمه «شروع مسابقه مشاعره» را بفشارید تا داوری سرور فعال گردد.
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="mushaereh-input-bar">
+          <input type="text" class="search-input" id="mushaereh-verse-input" placeholder="بیتی بنویسید که با حرف تعیین‌شده آغاز شود...">
+          <button class="fal-btn" id="btn-send-verse" style="padding: 12px 28px;">ارسال بیت</button>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <button class="chip" id="btn-start-mushaereh" style="font-weight: 700;">🔄 شروع مسابقه جدید</button>
+          <span style="font-size: 0.8rem; color: var(--color-ink-muted);">داوری سخت‌گیرانه: عدم تکرار بیت، رعایت حرف قافیه و زمان نوبت</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. VIEW: LITERARY GAMES (سرای بازی‌ها) -->
+    <section id="view-games" class="view-section">
+      <div style="margin-bottom: var(--space-lg);">
+        <h2>سرای بازی‌ها و چالش‌های کلامی</h2>
+        <p style="color: var(--color-ink-subtle);">مهارت ادبی، هوش کلامی و گنجینه واژگان خود را به چالش بکشید</p>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <button class="chip active" id="btn-play-guess-poet">👤 حدس شاعر</button>
+        <button class="chip" id="btn-play-bait-chin">🧩 بیت‌چین (مرتب‌سازی ابیات)</button>
+        <button class="chip" id="btn-play-word-quiz">📖 واژه‌نامه ادب کهن</button>
+      </div>
+
+      <div id="active-game-arena">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </section>
+
+    <!-- 6. VIEW: NOTEBOOK (دفترچه من) -->
+    <section id="view-notebook" class="view-section">
+      <div style="margin-bottom: var(--space-lg);">
+        <h2>دفترچه اشعار شخصی</h2>
+        <p style="color: var(--color-ink-subtle);">مجموعه ابیات و اشعار دلخواه ذخیره‌شده شما برای دسترسی همیشگی</p>
+      </div>
+
+      <div class="poems-grid" id="notebook-items-grid"></div>
+    </section>
+
+    <!-- 7. VIEW: PROFILE (کارنامه و نشان‌ها) -->
+    <section id="view-profile" class="view-section">
+      <div style="background-color: var(--color-surface-card); border: 1px solid var(--color-gold-gentle); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-card); margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 28px;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--color-gold-accent), #8A6405); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: var(--shadow-gold);">
+            ✍️
+          </div>
+          <div>
+            <h2 id="profile-display-name">ادیب دوستدار شعر</h2>
+            <div style="display: flex; gap: 12px; margin-top: 6px;">
+              <span class="poet-pill" id="profile-title">حافظ‌یار</span>
+              <span style="font-size: 0.85rem; color: var(--color-ink-muted);">عضو جامعه شعرخونه</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+          <div style="background: var(--color-surface-alt); padding: 18px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 0.85rem; color: var(--color-ink-muted);">امتیاز تجربه (XP)</span>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-gold-accent);" id="profile-xp">۱۵۰ XP</div>
+          </div>
+          <div style="background: var(--color-surface-alt); padding: 18px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 0.85rem; color: var(--color-ink-muted);">تداوم تمرین</span>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-emerald-success);" id="profile-streak">۳ روز پیاپی</div>
+          </div>
+          <div style="background: var(--color-surface-alt); padding: 18px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 0.85rem; color: var(--color-ink-muted);">اشعار نشانه‌گذاری‌شده</span>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-teal-poetic);" id="profile-bookmarks-count">۰</div>
+          </div>
+        </div>
+
+        <h3>مدال‌ها و افتخارات ادبی:</h3>
+        <div style="display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap;">
+          <div class="chip active">🏅 حافظ‌شناس (مبتدی)</div>
+          <div class="chip active">⚔️ پیشاهنگ مشاعره</div>
+          <div class="chip active">📜 خوانشگر شاهنامه</div>
+          <div class="chip">🔒 استاد سخن (نیاز به ۵۰۰۰ XP)</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Poem Reader Modal -->
+  <div class="modal-overlay" id="poem-reader-modal">
+    <div class="reader-modal">
+      <div class="reader-header">
+        <div>
+          <h2 id="reader-title" style="font-size: 1.3rem;">عنوان شعر</h2>
+          <span id="reader-poet" style="color: var(--color-gold-accent); font-weight: 700; font-size: 0.9rem;">شاعر</span>
+          <span style="font-size: 0.8rem; color: var(--color-ink-muted); margin-right: 8px;" id="reader-rhythm"></span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="chip" id="btn-toggle-bookmark">☆ افزودن به دفترچه</button>
+          <button class="chip" id="btn-memorize-this" style="background: var(--color-gold-accent); color: #FFF;">🧠 تمرین حفظ</button>
+          <button class="btn-icon" id="btn-close-reader">✕</button>
+        </div>
+      </div>
+      <div class="reader-body" id="reader-verses-container">
+        <!-- Rendered by JS -->
+      </div>
+      <div style="padding: 12px 24px; border-top: 1px solid var(--color-gold-gentle); font-size: 0.8rem; color: var(--color-ink-muted); background: var(--color-surface-card); display: flex; justify-content: space-between;">
+        <span id="reader-edition">نسخه مرجع</span>
+        <span>روی هر بیت کلیک کنید تا متن آن کپی شود.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div class="toast" id="toast">پیام سیستم</div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>«شعرخونه» — پلتفرم اصیل، فاخر و زنده شعر و ادب پارسی</p>
+    <p style="font-size: 0.8rem; margin-top: 4px; color: var(--color-ink-muted);">کلیه متون کهن از نسخ معتبر تصحیح‌شده و تحت مالکیت عمومی اقتباس شده‌اند.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

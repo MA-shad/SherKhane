@@ -1,0 +1,825 @@
+/* ==========================================================================
+   SherKhaneh Design System & Stylesheet (سیستم طراحی جامع شعرخونه)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* Brand Palette (پالت رنگی زرین و گرم شعرخونه) */
+  --color-bg-base: #FFFDF5;
+  --color-surface-card: #FFF8D6;
+  --color-surface-card-hover: #FFF3C4;
+  --color-surface-alt: #F9F3E3;
+  --color-gold-gentle: #D9C88A;
+  --color-gold-accent: #B8860B;
+  --color-gold-glow: rgba(184, 134, 11, 0.2);
+  --color-ink-deep: #2C221E;
+  --color-ink-subtle: #63534D;
+  --color-ink-muted: #8E7D76;
+  
+  /* Poetic Accents */
+  --color-teal-poetic: #1E5F74;
+  --color-teal-glow: rgba(30, 95, 116, 0.15);
+  --color-ruby-poetic: #9B2226;
+  --color-emerald-success: #2A9D8F;
+  --color-amber-warning: #E76F51;
+
+  /* Typography */
+  --font-sans: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-poetry: 'Amiri', 'Vazirmatn', serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 36px;
+  --space-2xl: 48px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-subtle: 0 4px 16px rgba(44, 34, 30, 0.04);
+  --shadow-card: 0 6px 24px rgba(44, 34, 30, 0.06);
+  --shadow-hover: 0 12px 32px rgba(184, 134, 11, 0.15);
+  --shadow-gold: 0 0 20px rgba(184, 134, 11, 0.35);
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark / Night Mode for Literary Reading */
+[data-theme="dark"] {
+  --color-bg-base: #1C1917;
+  --color-surface-card: #292524;
+  --color-surface-card-hover: #332D2A;
+  --color-surface-alt: #231F1D;
+  --color-gold-gentle: #856E3A;
+  --color-gold-accent: #D4AF37;
+  --color-gold-glow: rgba(212, 175, 55, 0.2);
+  --color-ink-deep: #FAF7F2;
+  --color-ink-subtle: #D6CEC7;
+  --color-ink-muted: #A89F97;
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  direction: rtl;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-base);
+  color: var(--color-ink-deep);
+  line-height: 1.7;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: 
+    radial-gradient(var(--color-gold-gentle) 0.75px, transparent 0.75px),
+    radial-gradient(var(--color-gold-gentle) 0.75px, var(--color-bg-base) 0.75px);
+  background-size: 36px 36px;
+  background-position: 0 0, 18px 18px;
+  overflow-x: hidden;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-ink-deep);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.poetry-font {
+  font-family: var(--font-poetry);
+}
+
+/* App Header & Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(255, 253, 245, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-gold-gentle);
+  padding: var(--space-sm) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-subtle);
+}
+
+[data-theme="dark"] .navbar {
+  background-color: rgba(28, 25, 23, 0.92);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--color-gold-accent), #8A6405);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFF;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-gold);
+}
+
+.brand-text h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-ink-deep), var(--color-gold-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text span {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  display: block;
+}
+
+/* Nav Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  list-style: none;
+}
+
+.nav-item {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-full);
+  color: var(--color-ink-subtle);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  user-select: none;
+}
+
+.nav-item:hover {
+  background-color: var(--color-surface-card);
+  color: var(--color-gold-accent);
+}
+
+.nav-item.active {
+  background-color: var(--color-surface-card);
+  color: var(--color-gold-accent);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--color-gold-gentle);
+}
+
+/* User & Theme Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background-color: var(--color-surface-card);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-gold-gentle);
+  font-size: 0.85rem;
+  color: var(--color-ink-deep);
+  font-weight: 600;
+}
+
+.user-badge .streak {
+  background: var(--color-gold-accent);
+  color: #FFF;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gold-gentle);
+  background: var(--color-surface-card);
+  color: var(--color-ink-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-size: 1.1rem;
+}
+
+.btn-icon:hover {
+  background: var(--color-gold-accent);
+  color: #FFF;
+  transform: translateY(-2px);
+}
+
+/* App Main Container */
+.main-content {
+  flex: 1;
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md);
+}
+
+/* Views Visibility */
+.view-section {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Banner & Hero Highlights */
+.hero-card {
+  background: linear-gradient(135deg, var(--color-surface-card), #FFFDF0);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+}
+
+[data-theme="dark"] .hero-card {
+  background: linear-gradient(135deg, var(--color-surface-card), #221E1C);
+}
+
+.hero-card::before {
+  content: '«شعر»';
+  position: absolute;
+  top: -20px;
+  left: 20px;
+  font-family: var(--font-poetry);
+  font-size: 10rem;
+  color: var(--color-gold-glow);
+  pointer-events: none;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-gold-accent);
+  color: #FFF;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.hero-verse {
+  font-family: var(--font-poetry);
+  font-size: 1.75rem;
+  line-height: 1.9;
+  color: var(--color-ink-deep);
+  margin-bottom: var(--space-md);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+}
+
+.hero-poet {
+  font-size: 1rem;
+  color: var(--color-gold-accent);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+}
+
+.hero-commentary {
+  font-size: 0.95rem;
+  color: var(--color-ink-subtle);
+  max-width: 750px;
+}
+
+/* Quick Action Cards Grid */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.action-card {
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  box-shadow: var(--shadow-subtle);
+  position: relative;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-gold-accent);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-alt);
+  color: var(--color-gold-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-xs);
+}
+
+.action-card h3 {
+  font-size: 1.15rem;
+}
+
+.action-card p {
+  font-size: 0.85rem;
+  color: var(--color-ink-subtle);
+}
+
+/* Fal-e Hafez Interactive Box */
+.fal-container {
+  background: linear-gradient(135deg, #1E5F74, #0D3B4C);
+  color: #FFF;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl) var(--space-xl);
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(13, 59, 76, 0.35);
+  margin-bottom: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.fal-container h2 {
+  color: #FFED99;
+  font-size: 1.8rem;
+  margin-bottom: var(--space-xs);
+}
+
+.fal-container p {
+  color: #E0F2FE;
+  margin-bottom: var(--space-lg);
+  font-size: 0.95rem;
+}
+
+.fal-btn {
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
+  color: #FFF;
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  padding: 14px 36px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+}
+
+.fal-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.6);
+}
+
+.fal-result {
+  display: none;
+  margin-top: var(--space-xl);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: right;
+  animation: fadeIn 0.4s ease;
+}
+
+.fal-ghazal-text {
+  font-family: var(--font-poetry);
+  font-size: 1.35rem;
+  line-height: 2;
+  color: #FFFDF0;
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.fal-tafsir-box {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-right: 4px solid #D4AF37;
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+.fal-tafsir-box h4 {
+  color: #FFED99;
+  margin-bottom: var(--space-xs);
+  font-size: 1rem;
+}
+
+.fal-tafsir-box p {
+  color: #F1F5F9;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 0;
+}
+
+/* Treasury (گنجینه ادب) */
+.search-bar-wrap {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.search-input {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gold-gentle);
+  background: var(--color-surface-card);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-ink-deep);
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.search-input:focus {
+  border-color: var(--color-gold-accent);
+  box-shadow: 0 0 0 3px var(--color-gold-glow);
+}
+
+.filter-chips {
+  display: flex;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.chip {
+  padding: 6px 16px;
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+  color: var(--color-ink-subtle);
+  user-select: none;
+}
+
+.chip:hover {
+  background-color: var(--color-surface-card-hover);
+  color: var(--color-gold-accent);
+}
+
+.chip.active {
+  background-color: var(--color-gold-accent);
+  color: #FFF;
+  border-color: var(--color-gold-accent);
+  font-weight: 600;
+}
+
+/* Poems Grid */
+.poems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-md);
+}
+
+.poem-card {
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-subtle);
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.poem-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-gold-accent);
+}
+
+.poem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.poet-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--color-surface-alt);
+  color: var(--color-gold-accent);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.poem-title {
+  font-size: 1.15rem;
+  margin-bottom: var(--space-sm);
+}
+
+.poem-matla {
+  font-family: var(--font-poetry);
+  font-size: 1.1rem;
+  color: var(--color-ink-subtle);
+  line-height: 1.8;
+  margin-bottom: var(--space-md);
+  border-right: 2px solid var(--color-gold-gentle);
+  padding-right: var(--space-sm);
+}
+
+.poem-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--color-ink-muted);
+  border-top: 1px solid rgba(217, 200, 138, 0.4);
+  padding-top: var(--space-sm);
+}
+
+/* Poem Reader Modal / Full View */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.reader-modal {
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-lg);
+  max-width: 820px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  animation: modalScale 0.25s ease;
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.reader-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-gold-gentle);
+  background-color: var(--color-surface-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reader-body {
+  padding: var(--space-xl);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.verse-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+  transition: var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+}
+
+.verse-row:hover {
+  background-color: var(--color-surface-card);
+}
+
+.couplet-first {
+  text-align: left;
+  font-family: var(--font-poetry);
+  font-size: 1.35rem;
+}
+
+.couplet-second {
+  text-align: right;
+  font-family: var(--font-poetry);
+  font-size: 1.35rem;
+}
+
+/* Mushaereh Arena */
+.mushaereh-box {
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-gold-gentle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-card);
+}
+
+.arena-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-gold-gentle);
+  padding-bottom: var(--space-md);
+}
+
+.letter-target-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.letter-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-gold-accent), #8A6405);
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-poetry);
+  font-size: 2.2rem;
+  box-shadow: var(--shadow-gold);
+  animation: pulseLetter 2s infinite ease-in-out;
+}
+
+@keyframes pulseLetter {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.turns-log {
+  max-height: 420px;
+  overflow-y: auto;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-left: var(--space-sm);
+}
+
+.turn-bubble {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  max-width: 80%;
+  line-height: 1.8;
+  animation: fadeIn 0.3s ease;
+}
+
+.turn-bubble.user {
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-gold-gentle);
+  align-self: flex-start;
+}
+
+.turn-bubble.bot {
+  background: linear-gradient(135deg, #1E5F74, #124555);
+  color: #FFF;
+  align-self: flex-end;
+}
+
+.turn-verse {
+  font-family: var(--font-poetry);
+  font-size: 1.25rem;
+}
+
+.turn-meta {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.mushaereh-input-bar {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Toast Message */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background-color: var(--color-ink-deep);
+  color: #FFF;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 2000;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Footer */
+.app-footer {
+  background-color: var(--color-surface-card);
+  border-top: 1px solid var(--color-gold-gentle);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  color: var(--color-ink-muted);
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--space-sm) var(--space-md);
+  }
+  .nav-links {
+    display: none; /* Mobile menu can toggle */
+  }
+  .verse-row {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: var(--space-xs);
+  }
+  .couplet-first, .couplet-second {
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  .hero-card {
+    padding: var(--space-md);
+  }
+  .hero-verse {
+    font-size: 1.35rem;
+  }
+}
