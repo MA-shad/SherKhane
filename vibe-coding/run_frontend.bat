@@ -1,3 +1,0 @@
-@echo off
-echo باز کردن وب‌اپلیکیشن تعاملی شعرخونه در مرورگر...
-start "" "frontend\index.html"
