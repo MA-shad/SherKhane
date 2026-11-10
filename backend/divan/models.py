@@ -3,13 +3,14 @@ from django.db import models
 
 #شاعر
 class Poet(models.Model):
-    name = models.CharField(max_length=150, verbose_name="نام شاعر")
+    name = models.CharField(max_length=150, verbose_name="نام شاعر", db_index=Tru)
     bio = models.TextField(blank=True, null=True, verbose_name="زندگی‌نامه")
     century = models.IntegerField(blank=True, null=True, verbose_name="قرن")
 
     class Meta:
         verbose_name = "شاعر"
         verbose_name_plural = "شاعران"
+        ordering=['name']
 
     def __str__(self):
         return self.name
@@ -33,7 +34,7 @@ class Rhythm(models.Model):
 #شعر
 class Poem(models.Model):
     poet = models.ForeignKey(Poet, on_delete=models.CASCADE, related_name='poems', verbose_name="شاعر")
-    title = models.CharField(max_length=255, verbose_name="عنوان شعر")
+    title = models.CharField(max_length=255, verbose_name="عنوان شعر", db_index=True)
 
     class PoemType(models.TextChoices):
         GHAZAL = 'غزل', 'غزل'
@@ -60,10 +61,12 @@ class Poem(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="تاریخ آخرین ویرایش")
 
     class Meta:
         verbose_name = "شعر"
         verbose_name_plural = "اشعار"
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.title} - {self.poet.name}"
@@ -72,7 +75,7 @@ class Poem(models.Model):
 #بیت
 class Verse(models.Model):
     poem = models.ForeignKey(Poem, on_delete=models.CASCADE, related_name='verses', verbose_name="شعر")
-    order = models.PositiveIntegerField(blank=True, null=True, verbose_name="شماره بیت")
+    order = models.PositiveIntegerField(verbose_name="شماره بیت", db_index=True)
     first_couplet = models.CharField(max_length=255, verbose_name="مصرع اول")
     second_couplet = models.CharField(max_length=255, verbose_name="مصرع دوم")
 
@@ -80,6 +83,8 @@ class Verse(models.Model):
         ordering = ['order']
         verbose_name = "بیت"
         verbose_name_plural = "ابیات"
+
+    constraints = [models.UniqueConstraint(fields=['poem', 'order'], name='unique_poem_verse_order')]
 
     def __str__(self):
         return f"بیت {self.order} از {self.poem.title}"
