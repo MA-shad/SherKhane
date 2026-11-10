@@ -22,3 +22,6 @@ __pycache__/
 # Django specific
 media/
 staticfiles/
+
+# Redundant nested workspace folder
+SherKhane/

@@ -6,6 +6,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'date_joined']
+        read_only_fields = ['id', 'date_joined']
+        
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -15,14 +17,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         error_messages={'min_length': 'رمز عبور باید حداقل ۸ کاراکتر باشد.'}
     )
 
+    password_confirm = serializers.CharField(
+        write_only=True,
+        error_messages={'required': 'تکرار رمز عبور الزامی است.'}
+    )
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm']
+
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError("وارد کردن ایمیل الزامی است.")
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("کاربری با این ایمیل از قبل در سایت ثبت‌نام کرده است.")
+        return value.lower()
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError({"password_confirm": "رمزهای عبور واردشده با یکدیگر همخوانی ندارند."})
+        return attrs
 
     def create(self, validated_data):
-        # متد create_user رمز عبور را خودکار هش می‌کند
+        validated_data.pop('password_confirm')
         return User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email', ''),
+            email=validated_data['email'],
             password=validated_data['password']
         )

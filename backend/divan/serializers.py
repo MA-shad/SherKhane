@@ -20,10 +20,27 @@ class VerseSerializer(serializers.ModelSerializer):
         fields = ['id', 'order', 'first_couplet', 'second_couplet']
 
 
-class PoemSerializer(serializers.ModelSerializer):
-    # قرار دادن ابیات به صورت تودرتو زیر مجموعه شعر
+class PoemListSerializer(serializers.ModelSerializer):
+    poet_name = serializers.CharField(source='poet.name', read_only=True)
+    rhythm_name = serializers.CharField(source='rhythm.name', read_only=True, default=None)
+
+    class Meta:
+        model = Poem
+        fields = [
+            'id', 'title', 'poet', 'poet_name',
+            'rhythm', 'rhythm_name', 'poem_type',
+            'created_at', 'updated_at'
+        ]
+
+class PoemDetailSerializer(serializers.ModelSerializer):
+    poet_name = serializers.CharField(source='poet.name', read_only=True)
+    rhythm_name = serializers.CharField(source='rhythm.name', read_only=True, default=None)
     verses = VerseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Poem
-        fields = ['id', 'poet', 'title', 'rhythm', 'poem_type', 'verses', 'created_at']
+        fields = [
+            'id', 'title', 'poet', 'poet_name',
+            'rhythm', 'rhythm_name', 'poem_type',
+            'verses', 'created_at', 'updated_at'
+        ]
