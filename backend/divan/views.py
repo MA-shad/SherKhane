@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Poet, Rhythm, Poem, Verse
-from .serializers import PoetSerializer, RhythmSerializer, PoemSerializer, VerseSerializer, PoemListSerializer, PoemDetailSerializer
+from .serializers import PoetSerializer, RhythmSerializer, VerseSerializer, PoemListSerializer, PoemDetailSerializer
 from rest_framework import filters
 
 
