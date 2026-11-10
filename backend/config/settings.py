@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'accounts.apps.AccountsConfig',
-    'divan.apps.Daivanconfig',
+    'divan.apps.DaivanConfig',
 ]
 
 AUTH_USER_MODEL = "accounts.User"

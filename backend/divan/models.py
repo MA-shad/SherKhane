@@ -3,7 +3,7 @@ from django.db import models
 
 #شاعر
 class Poet(models.Model):
-    name = models.CharField(max_length=150, verbose_name="نام شاعر", db_index=Tru)
+    name = models.CharField(max_length=150, verbose_name="نام شاعر", db_index=True)
     bio = models.TextField(blank=True, null=True, verbose_name="زندگی‌نامه")
     century = models.IntegerField(blank=True, null=True, verbose_name="قرن")
 
@@ -83,8 +83,7 @@ class Verse(models.Model):
         ordering = ['order']
         verbose_name = "بیت"
         verbose_name_plural = "ابیات"
-
-    constraints = [models.UniqueConstraint(fields=['poem', 'order'], name='unique_poem_verse_order')]
+        constraints = [models.UniqueConstraint(fields=['poem', 'order'], name='unique_poem_verse_order')]
 
     def __str__(self):
         return f"بیت {self.order} از {self.poem.title}"
