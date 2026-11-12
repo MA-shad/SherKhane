@@ -19,7 +19,7 @@ class Poet(models.Model):
 # اثر یا کتاب
 class Work(models.Model):
     poet = models.ForeignKey(Poet, on_delete=models.CASCADE, related_name='works', verbose_name="شاعر")
-    title = models.CharField(max_length=150, verbose_name="عنوان اثر")
+    title = models.CharField(max_length=150, verbose_name="عنوان اثر", db_index=True)
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات و پیشینه اثر")
 
     class Meta:
@@ -49,6 +49,14 @@ class Rhythm(models.Model):
 #شعر
 class Poem(models.Model):
     poet = models.ForeignKey(Poet, on_delete=models.CASCADE, related_name='poems', verbose_name="شاعر")
+    work = models.ForeignKey(
+        Work,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='poems',
+        verbose_name="اثر / کتاب"
+    )
     title = models.CharField(max_length=255, verbose_name="عنوان شعر", db_index=True)
 
     class PoemType(models.TextChoices):
@@ -77,14 +85,6 @@ class Poem(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="تاریخ آخرین ویرایش")
-    work = models.ForeignKey(
-    Work,
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    related_name='poems',
-    verbose_name="اثر / کتاب"
-)
 
     class Meta:
         verbose_name = "شعر"

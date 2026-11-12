@@ -91,21 +91,30 @@ class Command(BaseCommand):
         children = root_cat_data.get('cat', {}).get('children', [])
 
         # جستجوی دیوان اشعار
-        divan_cat = next((c for c in children if 'دیوان' in c['title']), None)
-        target_cat_id = root_cat_id
         work_title = 'دیوان اشعار'
         work_desc = None
 
-        if divan_cat:
-            work_title = divan_cat['title']
-            divan_data = self.fetch_json(f"https://api.ganjoor.net/api/ganjoor/cat/{divan_cat['id']}")
-            work_desc = divan_data.get('cat', {}).get('description')
-            sub_children = divan_data.get('cat', {}).get('children', [])
-            ghazal_cat = next((c for c in sub_children if 'غزل' in c['title']), None)
-            if ghazal_cat:
-                target_cat_id = ghazal_cat['id']
-            else:
-                target_cat_id = divan_cat['id']
+        target_cat = next((c for c in children if 'غزل' in c['title']), None)
+
+        if not target_cat:
+            divan_cat = next((c for c in children if 'دیوان' in c['title']), None)
+            if divan_cat:
+                work_title = divan_cat['title']
+                divan_data = self.fetch_json(f"https://api.ganjoor.net/api/ganjoor/cat/{divan_cat['id']}")
+                work_desc = divan_data.get('cat', {}).get('description')
+                sub_children = divan_data.get('cat', {}).get('children', [])
+                target_cat = next((c for c in sub_children if 'غزل' in c['title']), divan_cat)
+
+        if not target_cat:
+            target_cat = next((c for c in children if 'رباعی' in c['title']), None)
+            if target_cat:
+                work_title = f"رباعیات {poet_name}"
+
+        if not target_cat and children:
+            target_cat = children[0]
+            work_title = target_cat['title']
+
+        target_cat_id = target_cat['id'] if target_cat else root_cat_id
 
         if not work_desc:
             work_desc = self.get_work_description(work_title, poet_name)
