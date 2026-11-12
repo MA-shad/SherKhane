@@ -6,20 +6,20 @@ from divan.models import Poet, Rhythm, Poem, Verse
 
 
 class Command(BaseCommand):
-    help = 'واکشی خودکار اشعار واقعی از گنجور و ثبت در پایگاه داده'
+    help = 'Import authentic poems from Ganjoor API into PostgreSQL.'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--poet',
             type=str,
             default='سعدی',
-            help='نام شاعر جهت جستجو در گنجور (پیش‌فرض: سعدی)'
+            help='Poet name to search in Ganjoor (default: سعدی)'
         )
         parser.add_argument(
             '--count',
             type=int,
             default=5,
-            help='تعداد اشعار جهت واکشی (پیش‌فرض: ۵)'
+            help='Number of poems to fetch (default: 5)'
         )
 
     def fetch_json(self, url):
@@ -34,19 +34,19 @@ class Command(BaseCommand):
         poet_query = options['poet']
         fetch_limit = options['count']
 
-        self.stdout.write(self.style.NOTICE(f'در حال جستجوی شاعر «{poet_query}» در گنجور...'))
+        self.stdout.write(self.style.NOTICE(f'[INFO] Searching Ganjoor for poet: {poet_query}...'))
 
         # ۱. واکشی لیست تمام شاعران گنجور
         poets_data = self.fetch_json('https://api.ganjoor.net/api/ganjoor/poets')
         matched_poet = next((p for p in poets_data if poet_query in p['name']), None)
 
         if not matched_poet:
-            self.stdout.write(self.style.ERROR(f'شاعری با نام «{poet_query}» در گنجور یافت نشد.'))
+            self.stdout.write(self.style.ERROR(f'[ERROR] Poet "{poet_query}" was not found in Ganjoor.'))
             return
 
         poet_name = matched_poet['name']
         root_cat_id = matched_poet['rootCatId']
-        self.stdout.write(self.style.SUCCESS(f'شاعر پیدا شد: {poet_name} (شناسه ریشه: {root_cat_id})'))
+        self.stdout.write(self.style.SUCCESS(f'[OK] Found poet: {poet_name} (Root Cat ID: {root_cat_id})'))
 
         # ۲. واکشی دسته‌بندی‌های آثار شاعر جهت یافتن بخش غزلیات
         root_cat_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{root_cat_id}')
@@ -70,10 +70,10 @@ class Command(BaseCommand):
         raw_poems = target_data.get('cat', {}).get('poems', [])[:fetch_limit]
 
         if not raw_poems:
-            self.stdout.write(self.style.WARNING('هیچ شعری در این بخش یافت نشد.'))
+            self.stdout.write(self.style.WARNING('[WARN] No poems found in this section.'))
             return
 
-        self.stdout.write(self.style.NOTICE(f'تعداد {len(raw_poems)} شعر برای واکشی انتخاب شد.'))
+        self.stdout.write(self.style.NOTICE(f'[INFO] Selected {len(raw_poems)} poems to fetch.'))
 
         # ۴. ذخیره در دیتابیس درون یک تراکنش اتمیک
         with transaction.atomic():
@@ -145,10 +145,10 @@ class Command(BaseCommand):
                 Verse.objects.bulk_create(verse_instances)
                 total_imported_verses += len(verse_instances)
 
-                self.stdout.write(f"  - {poem_obj.title} ({len(verse_instances)} بیت) ثبت شد.")
+                self.stdout.write(f"  - {poem_obj.title} ({len(verse_instances)} couplets) -> Saved")
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"\nعملیات با موفقیت به پایان رسید: {len(raw_poems)} شعر و {total_imported_verses} بیت در دیتابیس ثبت شد."
+                f"\n[SUCCESS] Imported {len(raw_poems)} poems and {total_imported_verses} couplets into the database."
             )
         )
