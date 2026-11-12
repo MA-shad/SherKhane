@@ -17,7 +17,7 @@ class RhythmSerializer(serializers.ModelSerializer):
 class VerseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Verse
-        fields = ['id', 'order', 'first_couplet', 'second_couplet']
+        fields = ['id', 'poem', 'order', 'first_couplet', 'second_couplet']
 
 
 class PoemListSerializer(serializers.ModelSerializer):

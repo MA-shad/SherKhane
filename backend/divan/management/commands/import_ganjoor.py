@@ -1,0 +1,154 @@
+import json
+import urllib.request
+from django.core.management.base import BaseCommand
+from django.db import transaction
+from divan.models import Poet, Rhythm, Poem, Verse
+
+
+class Command(BaseCommand):
+    help = 'واکشی خودکار اشعار واقعی از گنجور و ثبت در پایگاه داده'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--poet',
+            type=str,
+            default='سعدی',
+            help='نام شاعر جهت جستجو در گنجور (پیش‌فرض: سعدی)'
+        )
+        parser.add_argument(
+            '--count',
+            type=int,
+            default=5,
+            help='تعداد اشعار جهت واکشی (پیش‌فرض: ۵)'
+        )
+
+    def fetch_json(self, url):
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'SherKhane/1.0'}
+        )
+        with urllib.request.urlopen(req, timeout=15) as response:
+            return json.loads(response.read().decode('utf-8'))
+
+    def handle(self, *args, **options):
+        poet_query = options['poet']
+        fetch_limit = options['count']
+
+        self.stdout.write(self.style.NOTICE(f'در حال جستجوی شاعر «{poet_query}» در گنجور...'))
+
+        # ۱. واکشی لیست تمام شاعران گنجور
+        poets_data = self.fetch_json('https://api.ganjoor.net/api/ganjoor/poets')
+        matched_poet = next((p for p in poets_data if poet_query in p['name']), None)
+
+        if not matched_poet:
+            self.stdout.write(self.style.ERROR(f'شاعری با نام «{poet_query}» در گنجور یافت نشد.'))
+            return
+
+        poet_name = matched_poet['name']
+        root_cat_id = matched_poet['rootCatId']
+        self.stdout.write(self.style.SUCCESS(f'شاعر پیدا شد: {poet_name} (شناسه ریشه: {root_cat_id})'))
+
+        # ۲. واکشی دسته‌بندی‌های آثار شاعر جهت یافتن بخش غزلیات
+        root_cat_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{root_cat_id}')
+        children = root_cat_data.get('cat', {}).get('children', [])
+
+        # جستجوی دیوان اشعار
+        divan_cat = next((c for c in children if 'دیوان' in c['title']), None)
+        target_cat_id = root_cat_id
+
+        if divan_cat:
+            divan_data = self.fetch_json(f"https://api.ganjoor.net/api/ganjoor/cat/{divan_cat['id']}")
+            sub_children = divan_data.get('cat', {}).get('children', [])
+            ghazal_cat = next((c for c in sub_children if 'غزل' in c['title']), None)
+            if ghazal_cat:
+                target_cat_id = ghazal_cat['id']
+            else:
+                target_cat_id = divan_cat['id']
+
+        # ۳. دریافت لیست اشعار آن بخش
+        target_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{target_cat_id}')
+        raw_poems = target_data.get('cat', {}).get('poems', [])[:fetch_limit]
+
+        if not raw_poems:
+            self.stdout.write(self.style.WARNING('هیچ شعری در این بخش یافت نشد.'))
+            return
+
+        self.stdout.write(self.style.NOTICE(f'تعداد {len(raw_poems)} شعر برای واکشی انتخاب شد.'))
+
+        # ۴. ذخیره در دیتابیس درون یک تراکنش اتمیک
+        with transaction.atomic():
+            # تقریب قرن از روی سال وفات هجری قمری گنجور
+            death_year = matched_poet.get('deathYearInLHijri')
+            century = (death_year // 100) + 1 if death_year else None
+
+            poet_obj, _ = Poet.objects.update_or_create(
+                name=poet_name,
+                defaults={
+                    'century': century,
+                    'bio': f"شاعر پارسی‌گوی ثبت شده در گنجور. متولد {matched_poet.get('birthPlace', 'نامشخص')}."
+                }
+            )
+
+            total_imported_verses = 0
+
+            for p_summary in raw_poems:
+                poem_id = p_summary['id']
+                poem_detail = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/poem/{poem_id}')
+
+                # استخراج وزن و بحر عروضی
+                rhythm_obj = None
+                sections = poem_detail.get('sections', [])
+                if sections and sections[0].get('ganjoorMetre'):
+                    metre_str = sections[0]['ganjoorMetre'].get('rhythm', '')
+                    if metre_str:
+                        rhythm_obj, _ = Rhythm.objects.get_or_create(name=metre_str[:100])
+
+                # ثبت یا یافتن شعر
+                poem_title = poem_detail.get('title', f"شعر شماره {poem_id}")
+                poem_obj, created = Poem.objects.get_or_create(
+                    poet=poet_obj,
+                    title=f"{poet_name} - {poem_title}",
+                    defaults={
+                        'poem_type': Poem.PoemType.GHAZAL,
+                        'rhythm': rhythm_obj,
+                    }
+                )
+
+                if not created:
+                    poem_obj.verses.all().delete()
+                    poem_obj.rhythm = rhythm_obj
+                    poem_obj.save()
+
+                # استخراج ابیات از روی جفت مصرع‌ها
+                verses_data = poem_detail.get('verses', [])
+                couplets_dict = {}
+                for v in verses_data:
+                    c_idx = v['coupletIndex']
+                    if c_idx not in couplets_dict:
+                        couplets_dict[c_idx] = {'first': '', 'second': ''}
+                    if v['versePosition'] == 0:
+                        couplets_dict[c_idx]['first'] = v['text']
+                    else:
+                        couplets_dict[c_idx]['second'] = v['text']
+
+                verse_instances = [
+                    Verse(
+                        poem=poem_obj,
+                        order=idx + 1,
+                        first_couplet=c_data['first'],
+                        second_couplet=c_data['second'],
+                    )
+                    for idx, c_data in couplets_dict.items()
+                    if c_data['first'] and c_data['second']
+                ]
+
+                Verse.objects.bulk_create(verse_instances)
+                total_imported_verses += len(verse_instances)
+
+                self.stdout.write(f"  - {poem_obj.title} ({len(verse_instances)} بیت) ثبت شد.")
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nعملیات با موفقیت به پایان رسید: {len(raw_poems)} شعر و {total_imported_verses} بیت در دیتابیس ثبت شد."
+            )
+        )
