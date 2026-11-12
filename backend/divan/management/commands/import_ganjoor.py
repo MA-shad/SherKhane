@@ -16,6 +16,12 @@ class Command(BaseCommand):
             help='Poet name to search in Ganjoor (default: سعدی)'
         )
         parser.add_argument(
+            '--offset',
+            type=int,
+            default=0,
+            help='Number of poems to skip from the beginning (default: 0)'
+        )
+        parser.add_argument(
             '--count',
             type=int,
             default=5,
@@ -33,6 +39,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         poet_query = options['poet']
         fetch_limit = options['count']
+        offset = options['offset']
 
         self.stdout.write(self.style.NOTICE(f'[INFO] Searching Ganjoor for poet: {poet_query}...'))
 
@@ -44,9 +51,14 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'[ERROR] Poet "{poet_query}" was not found in Ganjoor.'))
             return
 
+        poet_id = matched_poet['id']
         poet_name = matched_poet['name']
         root_cat_id = matched_poet['rootCatId']
         self.stdout.write(self.style.SUCCESS(f'[OK] Found poet: {poet_name} (Root Cat ID: {root_cat_id})'))
+
+        # دریافت بیوگرافی کامل شاعر از صفحه اختصاصی
+        poet_detail = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/poet/{poet_id}')
+        full_bio = poet_detail.get('poet', {}).get('description') or f"شاعر پارسی‌گوی ثبت شده در گنجور. متولد {matched_poet.get('birthPlace', 'نامشخص')}."
 
         # ۲. واکشی دسته‌بندی‌های آثار شاعر جهت یافتن بخش غزلیات
         root_cat_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{root_cat_id}')
@@ -67,7 +79,7 @@ class Command(BaseCommand):
 
         # ۳. دریافت لیست اشعار آن بخش
         target_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{target_cat_id}')
-        raw_poems = target_data.get('cat', {}).get('poems', [])[:fetch_limit]
+        raw_poems = target_data.get('cat', {}).get('poems', [])[offset : offset + fetch_limit]
 
         if not raw_poems:
             self.stdout.write(self.style.WARNING('[WARN] No poems found in this section.'))
@@ -85,7 +97,7 @@ class Command(BaseCommand):
                 name=poet_name,
                 defaults={
                     'century': century,
-                    'bio': f"شاعر پارسی‌گوی ثبت شده در گنجور. متولد {matched_poet.get('birthPlace', 'نامشخص')}."
+                    'bio': full_bio
                 }
             )
 
