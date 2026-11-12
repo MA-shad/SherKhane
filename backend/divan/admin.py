@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Poet, Rhythm, Poem, Verse
+from .models import Poet, Work, Rhythm, Poem, Verse
 
 
 # فرم خطی ابیات برای نمایش زیر صفحه شعر
@@ -15,6 +15,13 @@ class PoetAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+@admin.register(Work)
+class WorkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'poet')
+    list_filter = ('poet',)
+    search_fields = ('title', 'description')
+
+
 @admin.register(Rhythm)
 class RhythmAdmin(admin.ModelAdmin):
     list_display = ('name', 'bahr')
@@ -23,8 +30,8 @@ class RhythmAdmin(admin.ModelAdmin):
 
 @admin.register(Poem)
 class PoemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'poet', 'poem_type', 'rhythm')
-    list_filter = ('poem_type', 'rhythm', 'poet')
+    list_display = ('title', 'poet', 'work', 'poem_type', 'rhythm')
+    list_filter = ('poem_type', 'work', 'rhythm', 'poet')
     search_fields = ('title',)
 
     # تزریق ابیات به فرم شعر

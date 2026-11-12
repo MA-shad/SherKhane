@@ -2,7 +2,7 @@ import json
 import urllib.request
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from divan.models import Poet, Rhythm, Poem, Verse
+from divan.models import Poet, Work, Rhythm, Poem, Verse
 
 
 class Command(BaseCommand):
@@ -67,9 +67,13 @@ class Command(BaseCommand):
         # جستجوی دیوان اشعار
         divan_cat = next((c for c in children if 'دیوان' in c['title']), None)
         target_cat_id = root_cat_id
+        work_title = 'دیوان اشعار'
+        work_desc = None
 
         if divan_cat:
+            work_title = divan_cat['title']
             divan_data = self.fetch_json(f"https://api.ganjoor.net/api/ganjoor/cat/{divan_cat['id']}")
+            work_desc = divan_data.get('cat', {}).get('description')
             sub_children = divan_data.get('cat', {}).get('children', [])
             ghazal_cat = next((c for c in sub_children if 'غزل' in c['title']), None)
             if ghazal_cat:
@@ -101,6 +105,15 @@ class Command(BaseCommand):
                 }
             )
 
+            # ثبت یا به‌روزرسانی اثر (کتاب)
+            work_obj, _ = Work.objects.update_or_create(
+                poet=poet_obj,
+                title=work_title,
+                defaults={
+                    'description': work_desc
+                }
+            )
+
             total_imported_verses = 0
 
             for p_summary in raw_poems:
@@ -121,6 +134,7 @@ class Command(BaseCommand):
                     poet=poet_obj,
                     title=f"{poet_name} - {poem_title}",
                     defaults={
+                        'work': work_obj,
                         'poem_type': Poem.PoemType.GHAZAL,
                         'rhythm': rhythm_obj,
                     }
@@ -128,6 +142,7 @@ class Command(BaseCommand):
 
                 if not created:
                     poem_obj.verses.all().delete()
+                    poem_obj.work = work_obj
                     poem_obj.rhythm = rhythm_obj
                     poem_obj.save()
 

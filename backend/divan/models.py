@@ -16,6 +16,21 @@ class Poet(models.Model):
         return self.name
 
 
+# اثر یا کتاب
+class Work(models.Model):
+    poet = models.ForeignKey(Poet, on_delete=models.CASCADE, related_name='works', verbose_name="شاعر")
+    title = models.CharField(max_length=150, verbose_name="عنوان اثر")
+    description = models.TextField(blank=True, null=True, verbose_name="توضیحات و پیشینه اثر")
+
+    class Meta:
+        verbose_name = "اثر"
+        verbose_name_plural = "آثار"
+        ordering = ['title']
+
+    def __str__(self):
+        return f"{self.title} - {self.poet.name}"
+
+
 #وزن عروضی
 class Rhythm(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="وزن")
@@ -62,6 +77,14 @@ class Poem(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="تاریخ آخرین ویرایش")
+    work = models.ForeignKey(
+    Work,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name='poems',
+    verbose_name="اثر / کتاب"
+)
 
     class Meta:
         verbose_name = "شعر"
