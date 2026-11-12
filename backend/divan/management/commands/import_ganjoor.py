@@ -36,6 +36,32 @@ class Command(BaseCommand):
         with urllib.request.urlopen(req, timeout=15) as response:
             return json.loads(response.read().decode('utf-8'))
 
+    def fetch_wiki_summary(self, title):
+        try:
+            import urllib.parse
+            encoded = urllib.parse.quote(title.replace(' ', '_'))
+            url = f"https://fa.wikipedia.org/api/rest_v1/page/summary/{encoded}"
+            data = self.fetch_json(url)
+            return data.get('extract')
+        except Exception:
+            return None
+
+    def get_work_description(self, work_title, poet_name):
+        nickname = poet_name.split()[0]
+        queries = [
+            f"{work_title} {poet_name}",
+            f"{work_title} {nickname}",
+        ]
+        if 'دیوان' in work_title:
+            queries.extend([f"دیوان {nickname}", f"کلیات {nickname}"])
+        queries.append(work_title)
+
+        for q in queries:
+            desc = self.fetch_wiki_summary(q)
+            if desc:
+                return desc
+        return f"مجموعه {work_title} از آثار و شاهکارهای ماندگار {poet_name} در گنجینه شعرخانه."
+
     def handle(self, *args, **options):
         poet_query = options['poet']
         fetch_limit = options['count']
@@ -80,6 +106,9 @@ class Command(BaseCommand):
                 target_cat_id = ghazal_cat['id']
             else:
                 target_cat_id = divan_cat['id']
+
+        if not work_desc:
+            work_desc = self.get_work_description(work_title, poet_name)
 
         # ۳. دریافت لیست اشعار آن بخش
         target_data = self.fetch_json(f'https://api.ganjoor.net/api/ganjoor/cat/{target_cat_id}')
