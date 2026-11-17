@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     env_file:
       - .env
     environment:
@@ -31,3 +33,4 @@ services:
 
 volumes:
   sherkhane_pgdata:
+  
