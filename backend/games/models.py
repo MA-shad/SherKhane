@@ -12,6 +12,7 @@ class MoshaerehSession(models.Model):
         related_name='moshaereh_sessions',
         verbose_name="کاربر"
     )
+    
     current_letter = models.CharField(max_length=5, verbose_name="حرف جاری")
     score = models.PositiveBigIntegerField(default=0, verbose_name="امتیاز")
     round_count = models.PositiveBigIntegerField(default=0, verbose_name="تعداد دور ها")
