@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'accounts.apps.AccountsConfig',
     'divan.apps.DivanConfig',
-    'games.apps.GamesConfig.'
+    'games.apps.GamesConfig'
 ]
 
 AUTH_USER_MODEL = "accounts.User"
