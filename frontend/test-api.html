@@ -1,151 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تست API دیوان - شعرخانه</title>
-    <!-- وب‌فونت فارسی وزیرمتن -->
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <!-- کتابخانه Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Vazirmatn', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Vazirmatn', sans-serif; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,follow">
+  <title>تست API دیوان | شعرخانه</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:Vazirmatn,Tahoma,sans-serif}</style>
 </head>
-<body class="bg-amber-50 text-slate-800 min-h-screen p-6">
+<body class="min-h-screen bg-amber-50 p-5 text-slate-800 sm:p-8">
+  <main class="mx-auto max-w-5xl">
+    <header class="mb-8 border-b border-amber-200 pb-5">
+      <p class="mb-2 text-sm font-semibold text-amber-800">ابزار توسعه</p>
+      <h1 class="text-2xl font-bold text-amber-950 sm:text-3xl">تست زنده API شعرخانه</h1>
+      <p class="mt-2 text-sm leading-7 text-slate-600">این صفحه مستقل از رابط اصلی است و فقط برای بررسی پاسخ‌های Django REST Framework استفاده می‌شود.</p>
+    </header>
 
-    <div class="max-w-4xl mx-auto">
-        <!-- سربرگ -->
-        <header class="text-center mb-8 border-b border-amber-200 pb-4">
-            <h1 class="text-3xl font-bold text-amber-900 mb-2">پنل تست زنده API دیوان (شعرخانه)</h1>
-            <p class="text-amber-700 text-sm">تست دریافت مستقیم اطلاعات از دیتابیس PostgreSQL و جنگو REST Framework</p>
-        </header>
+    <section class="mb-6 flex flex-wrap gap-3">
+      <button id="load-poets" class="rounded-lg bg-amber-800 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-900">دریافت شاعران</button>
+      <button id="load-poems" class="rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900">دریافت اشعار</button>
+    </section>
 
-        <!-- بخش دکمه‌های فراخوانی -->
-        <div class="flex justify-center gap-4 mb-8">
-            <button onclick="fetchPoets()" class="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2.5 rounded-lg shadow font-medium transition">
-                ۱. دریافت لیست شاعران (/api/poets/)
-            </button>
-            <button onclick="fetchPoems()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-5 py-2.5 rounded-lg shadow font-medium transition">
-                ۲. دریافت لیست اشعار (/api/poems/)
-            </button>
-        </div>
+    <p id="status" class="mb-5 hidden rounded-lg p-4 text-sm leading-7" role="status" aria-live="polite"></p>
+    <section id="results" class="grid gap-4 md:grid-cols-2" aria-label="نتایج API">
+      <div class="col-span-full rounded-xl border border-dashed border-amber-300 bg-white/60 p-10 text-center text-sm text-slate-500">برای شروع یکی از دکمه‌ها را انتخاب کن.</div>
+    </section>
+    <nav id="pagination" class="mt-6 flex items-center justify-between gap-3" aria-label="صفحه‌بندی"></nav>
+  </main>
 
-        <!-- محل نمایش وضعیت و خطاهایی مثل CORS -->
-        <div id="status" class="hidden mb-6 p-4 rounded-lg text-sm font-medium"></div>
+  <script>
+    const API_BASE = (window.SHERKHANE_API_BASE_URL || "http://127.0.0.1:8000/api").replace(/\/+$/, "");
+    const statusElement = document.querySelector("#status");
+    const resultsElement = document.querySelector("#results");
+    const paginationElement = document.querySelector("#pagination");
+    let currentResource = "poets";
+    let currentPage = 1;
 
-        <!-- محل رندر کارت‌ها -->
-        <div id="content-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="col-span-full text-center text-slate-500 py-12 border-2 border-dashed border-amber-200 rounded-xl">
-                روی یکی از دکمه‌های بالا کلیک کن تا داده‌ها مستقیماً از دیتابیس خوانده و نمایش داده شوند.
-            </div>
-        </div>
-    </div>
+    function showStatus(message, isError = false) {
+      statusElement.textContent = message;
+      statusElement.className = `mb-5 rounded-lg p-4 text-sm leading-7 ${isError ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-900"}`;
+    }
 
-    <!-- کدهای جاوااسکریپت برای فراخوانی API و تست -->
-    <script>
-        const API_BASE = 'http://127.0.0.1:8000/api';
+    function makeElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
 
-        function showStatus(message, isError = false) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-amber-100', 'text-amber-800');
-            if (isError) {
-                statusDiv.classList.add('bg-red-100', 'text-red-800');
-            } else {
-                statusDiv.classList.add('bg-amber-100', 'text-amber-800');
-            }
-            statusDiv.innerHTML = message;
+    async function request(path) {
+      let response;
+      try {
+        response = await fetch(`${API_BASE}${path}`, { headers: { Accept: "application/json" } });
+      } catch {
+        throw new Error("اتصال به Django برقرار نشد. مطمئن شو سرویس backend در Docker روشن است.");
+      }
+      let payload;
+      try { payload = await response.json(); }
+      catch { throw new Error(`پاسخ API قابل‌خواندن نیست (${response.status}).`); }
+      if (!response.ok) throw new Error(payload.detail || `درخواست با وضعیت ${response.status} ناموفق بود.`);
+      return payload;
+    }
+
+    function normalizeCollection(payload) {
+      if (Array.isArray(payload)) return { results: payload, count: payload.length, next: null, previous: null };
+      if (payload && Array.isArray(payload.results)) return payload;
+      throw new Error("فرمت پاسخ فهرست با Pagination فعلی DRF سازگار نیست.");
+    }
+
+    function renderPagination(pageData) {
+      paginationElement.replaceChildren();
+      const previous = makeElement("button", "rounded border border-amber-300 px-4 py-2 text-sm disabled:opacity-40", "صفحه قبل");
+      previous.disabled = !pageData.previous;
+      previous.addEventListener("click", () => loadResource(currentResource, currentPage - 1));
+      const pageLabel = makeElement("span", "text-xs text-slate-500", `صفحه ${new Intl.NumberFormat("fa-IR").format(currentPage)} · ${new Intl.NumberFormat("fa-IR").format(pageData.count)} مورد`);
+      const next = makeElement("button", "rounded border border-amber-300 px-4 py-2 text-sm disabled:opacity-40", "صفحه بعد");
+      next.disabled = !pageData.next;
+      next.addEventListener("click", () => loadResource(currentResource, currentPage + 1));
+      paginationElement.append(previous, pageLabel, next);
+    }
+
+    function renderPoets(poets) {
+      resultsElement.replaceChildren();
+      if (!poets.length) { resultsElement.append(makeElement("p", "col-span-full p-8 text-center text-slate-600", "شاعری در این صفحه پیدا نشد.")); return; }
+      for (const poet of poets) {
+        const card = makeElement("article", "rounded-xl border border-amber-200 bg-white p-5 shadow-sm");
+        card.append(makeElement("h2", "text-lg font-bold text-amber-950", poet.name || "نام ثبت نشده"));
+        card.append(makeElement("p", "mt-2 text-xs text-amber-800", poet.century ? `قرن ${poet.century}` : "دوره تاریخی نامشخص"));
+        card.append(makeElement("p", "mt-3 text-sm leading-7 text-slate-600", poet.bio || "زندگی‌نامه ثبت نشده است."));
+        if (Array.isArray(poet.works)) card.append(makeElement("p", "mt-3 border-t border-amber-100 pt-3 text-xs text-slate-500", `${new Intl.NumberFormat("fa-IR").format(poet.works.length)} اثر متصل`));
+        resultsElement.append(card);
+      }
+    }
+
+    async function loadPoemDetail(id, card) {
+      const button = card.querySelector("button");
+      button.disabled = true;
+      button.textContent = "در حال دریافت…";
+      try {
+        const poem = await request(`/poems/${id}/`);
+        const verses = Array.isArray(poem.verses) ? poem.verses : [];
+        const verseList = makeElement("div", "mt-4 space-y-2 border-t border-amber-100 pt-3");
+        for (const verse of verses) {
+          const row = makeElement("div", "grid gap-2 rounded bg-amber-50 p-3 text-center text-sm leading-7 sm:grid-cols-2");
+          row.append(makeElement("p", "m-0", verse.first_couplet || ""), makeElement("p", "m-0", verse.second_couplet || ""));
+          verseList.append(row);
         }
+        if (!verses.length) verseList.append(makeElement("p", "text-xs text-slate-500", "برای این شعر بیتی ثبت نشده است."));
+        card.append(verseList);
+        button.remove();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = "تلاش دوباره برای دریافت ابیات";
+        showStatus(error.message, true);
+      }
+    }
 
-        // ۱. واکشی لیست شاعران از بک‌اند
-        async function fetchPoets() {
-            const container = document.getElementById('content-container');
-            showStatus('در حال دریافت اطلاعات شاعران از دیتابیس...');
+    function renderPoems(poems) {
+      resultsElement.replaceChildren();
+      if (!poems.length) { resultsElement.append(makeElement("p", "col-span-full p-8 text-center text-slate-600", "شعری در این صفحه پیدا نشد.")); return; }
+      for (const poem of poems) {
+        const card = makeElement("article", "col-span-full rounded-xl border border-amber-200 bg-white p-5 shadow-sm");
+        card.append(makeElement("h2", "text-lg font-bold text-amber-950", poem.title || "عنوان ثبت نشده"));
+        card.append(makeElement("p", "mt-2 text-xs text-slate-600", [poem.poet_name, poem.poem_type, poem.rhythm_name].filter(Boolean).join(" · ") || "اطلاعات تکمیلی ثبت نشده"));
+        const button = makeElement("button", "mt-4 rounded bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900", "دریافت جزئیات و ابیات");
+        button.addEventListener("click", () => loadPoemDetail(poem.id, card));
+        card.append(button);
+        resultsElement.append(card);
+      }
+    }
 
-            try {
-                const response = await fetch(`${API_BASE}/poets/`);
-                if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
+    async function loadResource(resource, page = 1) {
+      currentResource = resource;
+      currentPage = Math.max(1, page);
+      resultsElement.replaceChildren(makeElement("p", "col-span-full p-8 text-center text-slate-500", "در حال دریافت اطلاعات…"));
+      paginationElement.replaceChildren();
+      showStatus("در حال ارسال درخواست به API…");
+      try {
+        const params = new URLSearchParams();
+        if (currentPage > 1) params.set("page", String(currentPage));
+        const query = params.size ? `?${params.toString()}` : "";
+        const pageData = normalizeCollection(await request(`/${resource}/${query}`));
+        showStatus(`دریافت ${new Intl.NumberFormat("fa-IR").format(pageData.results.length)} مورد از ${new Intl.NumberFormat("fa-IR").format(pageData.count)} مورد با موفقیت انجام شد.`);
+        if (resource === "poets") renderPoets(pageData.results);
+        else renderPoems(pageData.results);
+        renderPagination(pageData);
+      } catch (error) {
+        resultsElement.replaceChildren();
+        showStatus(error.message, true);
+      }
+    }
 
-                const data = await response.json();
-                showStatus(`تعداد ${data.length} شاعر با موفقیت از دیتابیس خوانده شد.`);
-
-                if(data.length === 0) {
-                    container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-600">شاعر جدیدی در دیتابیس یافت نشد (دیتابیس خالی است).</div>`;
-                    return;
-                }
-
-                container.innerHTML = data.map(poet => `
-                    <div class="bg-white border border-amber-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-xl font-bold text-amber-950">${poet.name}</h3>
-                            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full">قرن ${poet.century || 'نامشخص'}</span>
-                        </div>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-4">${poet.bio || 'بیوگرافی ثبت نشده است.'}</p>
-                        <div class="text-xs text-amber-700 font-semibold border-t border-amber-100 pt-3">
-                            تعداد اشعار ثبت شده: ${poet.poems_count || 0}
-                        </div>
-                    </div>
-                `).join('');
-
-            } catch (error) {
-                showStatus(`⚠️ خطا در اتصال به بک‌اند: ${error.message}<br><small>تست کن که دستور runserver روشن باشد و CORS فعال شده باشد.</small>`, true);
-            }
-        }
-
-        // ۲. واکشی لیست اشعار و بیت‌ها از بک‌اند
-        async function fetchPoems() {
-            const container = document.getElementById('content-container');
-            showStatus('در حال دریافت اطلاعات اشعار و بیت‌ها...');
-
-            try {
-                const response = await fetch(`${API_BASE}/poems/`);
-                if (!response.ok) throw new Error(`خطای سرور: ${response.status}`);
-
-                const data = await response.json();
-                showStatus(`تعداد ${data.length} شعر با موفقیت از دیتابیس خوانده شد.`);
-
-                if(data.length === 0) {
-                    container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-600">شعری در دیتابیس یافت نشد (دیتابیس خالی است).</div>`;
-                    return;
-                }
-
-                container.innerHTML = data.map(poem => `
-                    <div class="col-span-full bg-white border border-amber-200 rounded-xl p-6 shadow-sm">
-                        <div class="flex justify-between items-center mb-4 border-b border-amber-100 pb-3">
-                            <h3 class="text-lg font-bold text-amber-900">${poem.title}</h3>
-                            <div class="flex gap-2">
-                                <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded">${poem.poem_type || 'غزل'}</span>
-                                <span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">${poem.rhythm || 'وزن نامشخص'}</span>
-                            </div>
-                        </div>
-
-                        <!-- لیست ابیات به صورت دو ستونه (مصرع اول و دوم) -->
-                        <div class="space-y-3 my-4">
-                            ${(poem.verses || []).map(v => `
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center py-1 bg-amber-50/50 rounded px-3 border-r-2 border-amber-700">
-                                    <div class="text-slate-800 font-medium">${v.first_couplet}</div>
-                                    <div class="text-slate-800 font-medium">${v.second_couplet}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('');
-
-            } catch (error) {
-                showStatus(`⚠️ خطا در اتصال به بک‌اند: ${error.message}`, true);
-            }
-        }
-    </script>
+    document.querySelector("#load-poets").addEventListener("click", () => loadResource("poets"));
+    document.querySelector("#load-poems").addEventListener("click", () => loadResource("poems"));
+  </script>
 </body>
 </html>

@@ -1,64 +1,99 @@
-# SherKhane Frontend
+# شعرخانه | فرانت‌اند
 
-A small React + Vite frontend for the public reading experience of SherKhane. It consumes the existing Django REST Framework API and does not modify backend code.
+نسخه‌ی بازسازی‌شده‌ی فرانت شعرخانه با این فناوری‌ها:
 
-## Pages included
+- React 19
+- React Router Framework Mode 8 (SSR)
+- Vite 8
+- Tailwind CSS 4
+- JavaScript (بدون TypeScript در کد برنامه)
 
-- `/` — homepage with live library counts and recent records
-- `/poets` — searchable, paginated poet directory
-- `/poets/:id` — poet profile, works, and poems
-- `/works` — searchable, paginated works/collections
-- `/works/:id` — work description and poet details
-- `/poems` — searchable, paginated poem library
-- `/poems/:id` — poem reading page with ordered couplets
+## چرا این ساختار؟
 
-## Requirements
+صفحات عمومی شعرخانه محتوای قابل جستجو دارند؛ بنابراین React Router با SSR فعال شده تا HTML اولیه‌ی صفحات شاعر، اثر و شعر روی سرور ساخته شود. اطلاعات از Django REST Framework دریافت می‌شود. هیچ داده‌ی نمونه یا تصویر ساختگی به‌عنوان محتوای واقعی نمایش داده نمی‌شود.
 
-- Node.js 18 or newer
-- Django backend running locally
-- PostgreSQL configured and migrated as described by the backend project
+## پیش‌نیازها
 
-## Run locally
+- Node.js نسخه‌ی 22.12 یا جدیدتر
+- npm (همراه Node.js نصب می‌شود)
+- سرویس Django در Docker با پورت میزبان `8000` در دسترس باشد
 
-Terminal 1, start the backend:
+## راه‌اندازی توسعه
 
-```bash
-cd backend
-python manage.py runserver
-```
-
-Terminal 2, start the frontend:
+از ترمینال Git Bash در ریشه مخزن:
 
 ```bash
 cd frontend
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-Open the Vite URL shown in the terminal (normally `http://127.0.0.1:5173`).
+سپس آدرس اعلام‌شده توسط Vite را باز کن؛ به‌صورت پیش‌فرض:
 
-## API configuration
-
-By default, the frontend uses `http://127.0.0.1:8000/api`. To change it, copy `.env.example` to `.env` and edit `VITE_API_BASE_URL`:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```text
+http://127.0.0.1:5173
 ```
 
-Restart Vite after changing environment variables.
+در Git Bash ویندوز، اگر دستور `cp` در دسترس نبود، فایل `.env.example` را در File Explorer کپی و نام آن را به `.env` تغییر بده.
 
-## API contract assumptions
+## اتصال به Django در Docker
 
-The client supports both raw arrays and DRF page-number pagination (`count`, `next`, `previous`, `results`). It uses the fields currently exposed by the repository's serializers:
+در حالت توسعه روی ویندوز، Node روی خود ویندوز اجرا می‌شود و از پورت منتشرشده‌ی Docker به بک‌اند وصل می‌شود:
 
-- Poet: `id`, `name`, `bio`, `century`, `works`
-- Work: `id`, `title`, `poet`, `poet_name`, `description`
-- Poem list: `id`, `title`, `poet`, `poet_name`, `work_title`, `rhythm_name`, `poem_type`
-- Poem detail: list fields plus `verses`
-- Verse: `id`, `order`, `first_couplet`, `second_couplet`
+```env
+SHERKHANE_API_BASE_URL=http://127.0.0.1:8000/api
+```
 
-The current Poet serializer does not expose a portrait/image field, so the UI uses a typographic initial instead of inventing a portrait. The current API also does not expose a direct `poet` filter for poems or works; the poet detail page uses DRF search and filters the returned first page by the exact poet ID. A future backend filter (for example `?poet=<id>`) would allow that page to show every related record with proper pagination.
+اگر بعداً فرانت‌اند را داخل Docker Compose قرار دادیم، آدرس داخلی سرویس backend معمولاً چنین خواهد بود:
 
-## Scope intentionally not included yet
+```env
+SHERKHANE_API_BASE_URL=http://backend:8000/api
+```
 
-Authentication UI, user dashboards, online Moshā'ereh, event pages, favorites, and any page whose API has not been implemented are out of scope for this first frontend slice.
+این آدرس را با نام واقعی سرویس و پورت داخلی Compose هماهنگ کن. برای SSR، درخواست API از سرور Node انجام می‌شود؛ بنابراین برای بارگذاری صفحات عمومی، نیازی به درخواست مستقیم مرورگر به Django و تنظیم CORS برای این مسیرهای GET نیست.
+
+## فرمان‌ها
+
+```bash
+npm run dev       # سرور توسعه + SSR
+npm run build     # ساخت خروجی Production
+npm run start     # اجرای خروجی Production
+```
+
+## مسیرهای پیاده‌سازی‌شده
+
+| مسیر | محتوا | منبع داده |
+|---|---|---|
+| `/` | صفحه اصلی و آمار کتابخانه | شاعران، آثار و اشعار |
+| `/poets` | فهرست، جستجو و صفحه‌بندی شاعران | `GET /api/poets/` |
+| `/poets/:poetId` | زندگی‌نامه و آثار شاعر | `GET /api/poets/:id/` |
+| `/works` | فهرست، جستجو و صفحه‌بندی آثار | `GET /api/works/` |
+| `/works/:workId` | جزئیات اثر | `GET /api/works/:id/` |
+| `/poems` | فهرست، جستجو و صفحه‌بندی اشعار | `GET /api/poems/` |
+| `/poems/:poemId` | مطالعه شعر و ابیات | `GET /api/poems/:id/` |
+| `/robots.txt` | دستورالعمل خزنده‌ها | تولیدشده در سرور فرانت |
+| `/sitemap.xml` | نقشه‌ی صفحات اصلی | تولیدشده در سرور فرانت |
+
+## قرارداد فعلی API و محدودیت‌های شناخته‌شده
+
+- کد، هم پاسخ آرایه‌ای و هم قالب صفحه‌بندی DRF با `count`, `next`, `previous`, `results` را می‌پذیرد.
+- اندازه صفحه در فرانت `20` است تا با `PAGE_SIZE = 20` فعلی بک‌اند هماهنگ بماند.
+- فیلدهای استفاده‌شده از Serializerهای موجود هستند: `Poet` شامل `id`, `name`, `bio`, `century`, `works`؛ `Work` شامل `id`, `title`, `poet`, `poet_name`, `description`؛ فهرست شعر شامل `poet_name`, `work_title`, `rhythm_name`, `poem_type`؛ جزئیات شعر شامل `verses` با `first_couplet` و `second_couplet`.
+- مدل و Serializer فعلی شاعر تصویر یا slug ندارد؛ رابط کاربری به‌جای جعل تصویر، حرف اول نام را به‌عنوان نشان نوشتاری استفاده می‌کند و URL جزئیات فعلاً بر اساس شناسه است.
+- API فعلی فیلتر مستقیم اشعار بر اساس `poet_id` یا `work_id` را ارائه نمی‌دهد. صفحه شاعر آثار embed‌شده در Serializer را نمایش می‌دهد و برای اشعار، کاربر را به جستجوی موجود با نام شاعر می‌برد؛ ادعای نمایش همه‌ی شعرهای شاعر نمی‌کنیم.
+- `sitemap.xml` فعلی صفحه‌های اصلی را فهرست می‌کند. برای درج همه‌ی URLهای پویای شاعران، آثار و شعرها، بهتر است بک‌اند بعداً endpoint اختصاصی sitemap/index با امکان دریافت امن و کم‌هزینه‌ی همه شناسه‌ها ارائه کند؛ پیمایش بی‌محدودیت تمام صفحات API عمومی و rate-limited انتخاب مناسبی نیست.
+- نام سایت و متن‌ها فارسی هستند؛ عنوان و توضیح متا، Open Graph، Twitter metadata، canonical، BreadcrumbList و داده‌ی ساختاریافته‌ی Person/CreativeWork برای صفحات جزئیات تولید می‌شوند. canonical و og:url از میزبان درخواست ساخته می‌شوند؛ در Production مقدار `PUBLIC_SITE_URL` را روی دامنه اصلی تنظیم کن تا canonical، Open Graph، robots و sitemap به Host ورودی درخواست وابسته نباشند. در توسعه محلی می‌توان آن را خالی گذاشت.
+
+## تست‌های پیشنهادی قبل از انتشار
+
+1. `npm run build` بدون خطا تمام شود.
+2. در حالی که Django و PostgreSQL در Docker فعال‌اند، صفحه‌های `/`, `/poets`, `/works`, `/poems` باز شوند.
+3. یک شاعر، یک اثر و یک شعر موجود را باز کن و محتوای HTML اولیه و عنوان صفحه را بررسی کن.
+4. شناسه ناموجود باید پاسخ 404 بدهد و خطای قطع ارتباط API باید پیام قابل فهم 503 نمایش دهد.
+5. جستجو، صفحه‌بندی، لینک‌های داخلی و نمایش موبایل را بررسی کن.
+6. قبل از دیپلوی، `PUBLIC_SITE_URL`، دامنه canonical، sitemap کامل و تنظیمات امنیتی/کش نهایی شوند.
+
+## فایل تست قبلی
+
+`test-api.html` ابزار مستقل قبلی برای بررسی چند درخواست API است و از ساختار React Router جدا نگه داشته می‌شود. این فایل بخشی از اپلیکیشن اصلی نیست.
