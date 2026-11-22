@@ -54,13 +54,13 @@ def find_system_response_verse(target_letter: str, used_verse_ids: list[int]) ->
     candidate_verses = Verse.objects.exclude(
         id__in=used_verse_ids
     ).filter(
-        first_hemistich__istartswith=target_letter
+        first_couplet__istartswith=target_letter
     ).select_related(
         'poem', 'poem__poet'
     ).order_by('?')[:25]
     matched_verses = [
         verse for verse in candidate_verses
-        if extract_first_letter(verse.first_hemistich) == target_letter
+        if extract_first_letter(verse.first_couplet) == target_letter
     ]   
     
     if matched_verses:
@@ -92,7 +92,7 @@ def play_mushaereh_turn(session: MoshaerehSession, user_verse_text: str) -> Tupl
         return True, "آفرین! گنجینه شعرخانه در برابر این حرف بیتی نیافت و شما برنده این مسابقه شدید!", None
 
     session.used_verse.add(bot_verse)
-    next_letter_for_user = extract_last_letter(bot_verse.second_hemistich or bot_verse.first_hemistich)
+    next_letter_for_user = extract_last_letter(bot_verse.second_couplet or bot_verse.first_couplet)
 
     session.score += 10
     session.round_count += 1
