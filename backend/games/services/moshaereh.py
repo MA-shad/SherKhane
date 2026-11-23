@@ -67,7 +67,7 @@ def find_system_response_verse(target_letter: str, used_verse_ids: list[int]) ->
         return random.choice(matched_verses)
     return None
 
-def play_mushaereh_turn(session: MoshaerehSession, user_verse_text: str) -> Tuple[bool, str, Optional[Verse]]:
+def play_moshaereh_turn(session: MoshaerehSession, user_verse_text: str) -> Tuple[bool, str, Optional[Verse]]:
     if not session.is_active:
         return False, "این بازی به پایان رسیده است.", None
 
