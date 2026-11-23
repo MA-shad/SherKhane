@@ -2,7 +2,7 @@ from django.shortcuts import render
 import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 
 from .models import MoshaerehSession
 from .serializers import MoshaerehSessionSerializer
@@ -24,6 +24,8 @@ FIRST_LETTER_POOL = [
 
 
 class StartMoshaerehView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         initial_letter = random.choice(FIRST_LETTER_POOL)
         session = MoshaerehSession.objects.create(
@@ -38,6 +40,8 @@ class StartMoshaerehView(APIView):
 
 
 class PlayMoshaerehTurnView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, session_id):
         try:
             session = MoshaerehSession.objects.get(id=session_id)
@@ -63,6 +67,8 @@ class PlayMoshaerehTurnView(APIView):
 
 
 class MoshaerehDetailView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request, session_id):
         try:
             session = MoshaerehSession.objects.get(id=session_id)
