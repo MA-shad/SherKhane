@@ -8,6 +8,7 @@ export default [
   route("works/:workId", "routes/work-detail.jsx"),
   route("poems", "routes/poems.jsx"),
   route("poems/:poemId", "routes/poem-detail.jsx"),
+  route("games/moshaereh", "routes/moshaereh.jsx"),
   route("sitemap.xml", "routes/sitemap.jsx"),
   route("robots.txt", "routes/robots.jsx"),
   route("*", "routes/not-found.jsx"),

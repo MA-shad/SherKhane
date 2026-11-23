@@ -4,6 +4,7 @@ const navigation = [
   { to: "/poets", label: "شاعران" },
   { to: "/works", label: "آثار و دیوان‌ها" },
   { to: "/poems", label: "کتابخانه اشعار" },
+  { to: "/games/moshaereh", label: "مشاعره" },
 ];
 
 export default function SiteLayout({ children }) {
@@ -57,6 +58,7 @@ export default function SiteLayout({ children }) {
             <Link to="/poets">شاعران</Link>
             <Link to="/works">آثار</Link>
             <Link to="/poems">اشعار</Link>
+            <Link to="/games/moshaereh">مشاعره</Link>
           </div>
           <span className="footer-note">محتوا از کتابخانه شعرخانه دریافت می‌شود.</span>
         </div>
